@@ -1,14 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const nodemailer = require("nodemailer");
+const config = require("../config");
 
-const _controlador = require("../controllers/impClientes");
+const _controlador = require("../controllers/impVentas");
 
-/**
- * Obtener todas los datos de los clientes
- */
-router.get("/services/serviciosCliente/clientes", (req, res) => {
+var transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: config.MY_USER,
+        pass: config.MY_PASS,
+    },
+});
+
+router.get("/services/serviciosVenta/ventas", (req, res) => {
     _controlador
-        .consultarClientes()
+        .consultarVentas()
         .then((respuestaDB) => {
             let registros = respuestaDB.rows;
             res.send({
@@ -23,43 +30,63 @@ router.get("/services/serviciosCliente/clientes", (req, res) => {
         });
 });
 
-/**
- * Obtener todas los datos de un cliente especifico
- */
-router.get("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
-
-    _controlador
-        .consultarCliente(documento_cliente)
-        .then((respuestaDB) => {
-            let registros = respuestaDB.rows;
-            res.send({
-                ok: true,
-                info: registros,
-                mensaje: "Registro consultado",
-            });
-        })
-        .catch((error) => {
-            res.send(error);
-        });
-});
-
-/**
- * Guarda un cliente
- */
-router.post("/services/serviciosCliente/cliente", (req, res) => {
-    try {
-        let info_cliente = req.body;
-
-        _controlador.validarCliente(info_cliente);
+router.get(
+    "/services/serviciosVenta/venta/:id_venta",
+    (req, res) => {
+        let id_venta = req.params.id_venta;
 
         _controlador
-            .guardarCliente(info_cliente)
+            .consultarVenta(id_venta)
             .then((respuestaDB) => {
+                let registros = respuestaDB.rows;
                 res.send({
                     ok: true,
-                    mensaje: "Cliente guardado",
-                    info: info_cliente,
+                    info: registros,
+                    mensaje: "Registro consultado",
+                });
+            })
+            .catch((error) => {
+                res.send(error);
+            });
+    }
+);
+
+router.post("/services/serviciosVenta/venta", (req, res) => {
+    try {
+        let info_venta = req.body;
+
+        _controlador.validarVenta(info_venta);
+
+        var mailOptions = {
+            from: config.MY_USER,
+            to: `inmortal_20@live.com`,
+            subject: "Registro Añadido",
+            text: `
+            Se ha añadido un nuevo registro a la DB, 
+            en este caso una nueva venta ha sido 
+            añadido. A continuación información relevante 
+            de la venta en cuestión: 
+            
+            - ID venta: ${req.body.id}
+            - Detalles: ${req.body.detalles} 
+            - Fecha venta: ${req.body.fecha}
+            - Valor: ${req.body.valor}
+            
+            Para más información, por favor responda este mensaje `,
+        };
+
+        _controlador
+            .guardarVenta(info_venta)
+            .then((respuestaDB) => {
+                transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                res.send({
+                    ok: true,
+                    mensaje: "Venta guardada",
+                    info: info_venta,
                 });
             })
             .catch((error) => {
@@ -70,42 +97,90 @@ router.post("/services/serviciosCliente/cliente", (req, res) => {
     }
 });
 
-/**
- * Eliminar un cliente
- */
-router.delete("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
+router.delete(
+    "/services/serviciosVenta/venta/:id_venta",
+    (req, res) => {
+        let id_venta = req.params.id_venta;
+        if (id_venta) {
 
-    if (documento_cliente) {
+            var mailOptions = {
+                from: config.MY_USER,
+                to: `inmortal_20@live.com`,
+                subject: "Registro Añadido",
+                text: `
+                Se ha eliminado un registro de la DB, 
+                en este caso se ha eliminado una venta. 
+                A continuación información relevante 
+                de la venta en cuestión: 
+                
+                - ID venta: ${req.body.id}
+                
+                Para más información, por favor responda este mensaje `,
+            };
+
+
+            _controlador
+                .eliminarVenta(id_venta)
+                .then((respuestaDB) => {
+                    transporter.sendMail(mailOptions, function (err, info) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+                    res.send({
+                        ok: true,
+                        info: {},
+                        mensaje: "Venta eliminada",
+                    });
+                })
+                .catch((error) => {
+                    res.send(error);
+                });
+        }
+    }
+);
+
+router.put(
+    "/services/serviciosVenta/venta/:id_venta",
+    (req, res) => {
+        let id_venta = req.params.id_venta;
+
+        var mailOptions = {
+            from: config.MY_USER,
+            to: `inmortal_20@live.com`,
+            subject: "Registro Añadido",
+            text: `
+            Se ha actualizado un registro en la DB, 
+            en este caso una venta ha sido actualizada. 
+            A continuación información relevante 
+            de la venta en cuestión: 
+            
+            - ID venta: ${req.body.id}
+            - Detalles modificados: ${req.body.detalles} 
+            - Fecha modificada de venta: ${req.body.fecha}
+            - Valor modificado: ${req.body.valor}
+            
+            Para más información, por favor responda este mensaje `,
+        };
+
         _controlador
-            .eliminarCliente(documento_cliente)
+            .actualizarVenta(id_venta, req.body)
             .then((respuestaDB) => {
-                res.send({ ok: true, info: {}, mensaje: "Cliente eliminado" });
+                transporter.sendMail(mailOptions, function (err, info) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                res.send({
+                    ok: true,
+                    info: {},
+                    mensaje: "Venta actualizada",
+                });
             })
             .catch((error) => {
                 res.send(error);
             });
     }
-});
-
-/**
- * Actualizar un cliente
- */
-router.put("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
-
-    _controlador
-        .actualizarCliente(documento_cliente, req.body)
-        .then((respuestaDB) => {
-            res.send({
-                ok: true,
-                info: {},
-                mensaje: "Cliente actualizado",
-            });
-        })
-        .catch((error) => {
-            res.send(error);
-        });
-});
+);
 
 module.exports = router;

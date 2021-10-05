@@ -1,84 +1,77 @@
 /**
- * CONTROLADOR DE CLIENTES
+ * CONTROLADOR DE VENTAS
  */
 //Importar servicio de postgres
 const ServicioPg = require("../services/postgreSQL");
 
-let validarCliente = (cliente) => {
-    if (!cliente) {
-        throw { ok: false, mensaje: "La información del cliente es obligatoria."};
+let validarVenta = (venta) => {
+    if (!venta) {
+        throw { ok: false, mensaje: "La información de la venta es obligatoria."};
     }
-    if (!cliente.documento) {
-        throw { ok: false, mensaje: "El documento del cliente es obligatorio."};
+    if (!venta.id) {
+        throw { ok: false, mensaje: "El id de la venta es obligatorio."};
     }
-    if (!cliente.nombre) {
-        throw { ok: false, mensaje: "El nombre del cliente es obligatorio." };
+    if (!venta.detalles) {
+        throw { ok: false, mensaje: "Los detalles de la venta es obligatorio." };
     }
-    if (!cliente.telefono) {
-        throw { ok: false, mensaje: "El telefono del cliente es obligatorio." };
+    if (!venta.fecha) {
+        throw { ok: false, mensaje: "La fecha de la venta es obligatorio." };
     }
-    if (!cliente.direccion) {
-        throw { ok: false, mensaje: "La dirección del cliente es obligatoria."};
-    }
-    if (!cliente.correo) {
-        throw { ok: false, mensaje: "El correo del cliente es obligatorio." };
-    }
-    if (!cliente.edad) {
-        throw { ok: false, mensaje: "La edad del cliente es obligatoria." };
+    if (!venta.valor) {
+        throw { ok: false, mensaje: "El valor de la venta es obligatoria."};
     }
 };
 
-let guardarCliente = async (cliente) => {
+let guardarVenta = async (venta) => {
     let _servicio = new ServicioPg();
-    let sql = `INSERT INTO public.clientes(
-	    documento, nombre, telefono, direccion, correo, edad)
-	    VALUES (${cliente.documento}, '${cliente.nombre}', '${cliente.telefono}', 
-        '${cliente.direccion}', '${cliente.correo}', ${cliente.edad});`;
+    let sql = `INSERT INTO public.ventas(
+	    id, detalles, fecha, valor)
+	    VALUES ('${venta.id}', '${venta.detalles}', '${venta.fecha}', 
+        ${venta.valor});`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     console.log(respuesta);
     return respuesta;
 };
 
-let consultarClientes = async () => {
+let consultarVentas = async () => {
     let _servicio = new ServicioPg();
-    let sql = `SELECT * FROM public.clientes;`;
+    let sql = `SELECT * FROM public.ventas;`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let consultarCliente = async (documento_cliente) => {
+let consultarVenta = async (id_venta) => {
     let _servicio = new ServicioPg();
-    let sql = `SELECT * FROM public.clientes WHERE documento = ${documento_cliente};`;
+    let sql = `SELECT * FROM public.ventas WHERE id = '${id_venta}';`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let eliminarCliente = async (documento_cliente) => {
+let eliminarVenta = async (id_venta) => {
     let _servicio = new ServicioPg();
-    let sql = `DELETE FROM public.clientes WHERE  documento= ${documento_cliente} cascade`;
+    let sql = `DELETE FROM public.ventas WHERE  id= '${id_venta}' cascade`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let actualizarCliente = async (documento_cliente, body) => {
+let actualizarVenta = async (id_venta, body) => {
     let _servicio = new ServicioPg();
-    let sql = `UPDATE public.clientes
-	SET nombre='${body.nombre}', telefono='${body.telefono}', 
-        direccion='${body.direccion}', correo='${body.correo}', edad=${body.edad}
-	    WHERE documento = ${documento_cliente};`;
+    let sql = `UPDATE public.ventas
+	SET detalles='${body.detalles}', fecha='${body.fecha}', 
+        valor=${body.valor} WHERE id = '${id_venta}';`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
 module.exports = {
-    validarCliente,
-    guardarCliente,
-    consultarClientes,
-    consultarCliente,
-    eliminarCliente,
+    validarVenta,
+    guardarVenta,
+    consultarVentas,
+    consultarVenta,
+    eliminarVenta,
 };
