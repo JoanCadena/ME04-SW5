@@ -10,13 +10,13 @@ app.use(express.json());
 app.use(cors());
 
 //Información que se obtendrá en nuestra URL principal.
-app.get("/services", (req, res) => {
+app.get("/services/", (req, res) => {
   res.send("API Servicios ME04SW5");
 });
 
 //Importar las rutas con los endpoints especificos
-//const rutas_compromisos = require("./routes/Crear_compromiso");
-//app.use(rutas_compromisos);
+const rutas_clientes = require("./routes/cliente");
+app.use(rutas_clientes);
 
 //Puerto
 const PORT = config.PORT || 3001;
