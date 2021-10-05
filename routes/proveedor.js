@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const _controlador = require("../controllers/impClientes");
+const _controlador = require("../controllers/impProveedores");
 
 /**
- * Obtener todas los datos de los clientes
+ * Obtener todas los datos de los proveedores
  */
-router.get("/services/serviciosCliente/clientes", (req, res) => {
+router.get("/services/serviciosProveedor/proveedores", (req, res) => {
     _controlador
-        .consultarClientes()
+        .consultarProveedores()
         .then((respuestaDB) => {
             let registros = respuestaDB.rows;
             res.send({
@@ -24,13 +24,13 @@ router.get("/services/serviciosCliente/clientes", (req, res) => {
 });
 
 /**
- * Obtener todas los datos de un cliente especifico
+ * Obtener todas los datos de un proveedor especifico
  */
-router.get("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
+router.get("/services/serviciosProveedor/proveedor/:id_proveedor", (req, res) => {
+    let id_proveedor = req.params.id_proveedor;
 
     _controlador
-        .consultarCliente(documento_cliente)
+        .consultarProveedor(id_proveedor)
         .then((respuestaDB) => {
             let registros = respuestaDB.rows;
             res.send({
@@ -45,21 +45,21 @@ router.get("/services/serviciosCliente/cliente/:documento_cliente", (req, res) =
 });
 
 /**
- * Guarda un cliente
+ * Guarda un proveedor
  */
-router.post("/services/serviciosCliente/cliente", (req, res) => {
+router.post("/services/serviciosProveedor/proveedor", (req, res) => {
     try {
-        let info_cliente = req.body;
+        let info_proveedor = req.body;
 
-        _controlador.validarCliente(info_cliente);
+        _controlador.validarProveedor(info_proveedor);
 
         _controlador
-            .guardarCliente(info_cliente)
+            .guardarProveedor(info_proveedor)
             .then((respuestaDB) => {
                 res.send({
                     ok: true,
-                    mensaje: "Cliente guardado",
-                    info: info_cliente,
+                    mensaje: "Proveedor guardado",
+                    info: info_proveedor,
                 });
             })
             .catch((error) => {
@@ -71,16 +71,16 @@ router.post("/services/serviciosCliente/cliente", (req, res) => {
 });
 
 /**
- * Eliminar un cliente
+ * Eliminar un proveedor
  */
-router.delete("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
+router.delete("/services/serviciosProveedor/proveedor/:id_proveedor", (req, res) => {
+    let id_proveedor = req.params.id_proveedor;
 
-    if (documento_cliente) {
+    if (id_proveedor) {
         _controlador
-            .eliminarCliente(documento_cliente)
+            .eliminarProveedor(id_proveedor)
             .then((respuestaDB) => {
-                res.send({ ok: true, info: {}, mensaje: "Cliente eliminado" });
+                res.send({ ok: true, info: {}, mensaje: "Proveedor eliminado" });
             })
             .catch((error) => {
                 res.send(error);
@@ -89,18 +89,18 @@ router.delete("/services/serviciosCliente/cliente/:documento_cliente", (req, res
 });
 
 /**
- * Actualizar un cliente
+ * Actualizar un proveedor
  */
-router.put("/services/serviciosCliente/cliente/:documento_cliente", (req, res) => {
-    let documento_cliente = req.params.documento_cliente;
+router.put("/services/serviciosProveedor/proveedor/:id_proveedor", (req, res) => {
+    let id_proveedor = req.params.id_proveedor;
 
     _controlador
-        .actualizarCliente(documento_cliente, req.body)
+        .actualizarProveedor(id_proveedor, req.body)
         .then((respuestaDB) => {
             res.send({
                 ok: true,
                 info: {},
-                mensaje: "Cliente actualizado",
+                mensaje: "Proveedor actualizado",
             });
         })
         .catch((error) => {

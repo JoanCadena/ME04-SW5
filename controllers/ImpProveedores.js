@@ -1,84 +1,77 @@
 /**
- * CONTROLADOR DE CLIENTES
+ * CONTROLADOR DE PROVEEDOR
  */
 //Importar servicio de postgres
 const ServicioPg = require("../services/postgreSQL");
 
-let validarCliente = (cliente) => {
-    if (!cliente) {
-        throw { ok: false, mensaje: "La información del cliente es obligatoria."};
+let validarProveedor = (proveedor) => {
+    if (!proveedor) {
+        throw { ok: false, mensaje: "La información del proveedor es obligatoria."};
     }
-    if (!cliente.documento) {
-        throw { ok: false, mensaje: "El documento del cliente es obligatorio."};
+    if (!proveedor.id) {
+        throw { ok: false, mensaje: "El ID del proveedor es obligatorio."};
     }
-    if (!cliente.nombre) {
-        throw { ok: false, mensaje: "El nombre del cliente es obligatorio." };
+    if (!proveedor.nombre) {
+        throw { ok: false, mensaje: "El nombre del proveedor es obligatorio." };
     }
-    if (!cliente.telefono) {
-        throw { ok: false, mensaje: "El telefono del cliente es obligatorio." };
+    if (!proveedor.telefono) {
+        throw { ok: false, mensaje: "El telefono del proveedor es obligatorio." };
     }
-    if (!cliente.direccion) {
-        throw { ok: false, mensaje: "La dirección del cliente es obligatoria."};
-    }
-    if (!cliente.correo) {
-        throw { ok: false, mensaje: "El correo del cliente es obligatorio." };
-    }
-    if (!cliente.edad) {
-        throw { ok: false, mensaje: "La edad del cliente es obligatoria." };
+    if (!proveedor.correo) {
+        throw { ok: false, mensaje: "El correo del proveedor es obligatorio." };
     }
 };
 
-let guardarCliente = async (cliente) => {
+let guardarProveedor = async (proveedor) => {
     let _servicio = new ServicioPg();
-    let sql = `INSERT INTO public.clientes(
-	    documento, nombre, telefono, direccion, correo, edad)
-	    VALUES (${cliente.documento}, '${cliente.nombre}', '${cliente.telefono}', 
-        '${cliente.direccion}', '${cliente.correo}', ${cliente.edad});`;
+    let sql = `INSERT INTO public.proveedores(
+	    id, nombre, telefono, correo)
+	    VALUES (${proveedor.id}, '${proveedor.nombre}', 
+            '${proveedor.telefono}','${proveedor.correo}';`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     console.log(respuesta);
     return respuesta;
 };
 
-let consultarClientes = async () => {
+let consultarProveedores = async () => {
     let _servicio = new ServicioPg();
-    let sql = `SELECT * FROM public.clientes;`;
+    let sql = `SELECT * FROM public.proveedores;`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let consultarCliente = async (documento_cliente) => {
+let consultarProveedor = async (id_proveedor) => {
     let _servicio = new ServicioPg();
-    let sql = `SELECT * FROM public.clientes WHERE documento = ${documento_cliente};`;
+    let sql = `SELECT * FROM public.proveedores WHERE id = ${id_proveedor};`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let eliminarCliente = async (documento_cliente) => {
+let eliminarProveedor = async (id_proveedor) => {
     let _servicio = new ServicioPg();
-    let sql = `DELETE FROM public.clientes WHERE  documento= ${documento_cliente} cascade`;
+    let sql = `DELETE FROM public.proveedores WHERE  id= ${id_proveedor} cascade`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
-let actualizarCliente = async (documento_cliente, body) => {
+let actualizarProveedor = async (id_proveedor, body) => {
     let _servicio = new ServicioPg();
-    let sql = `UPDATE public.clientes
+    let sql = `UPDATE public.proveedores
 	SET nombre='${body.nombre}', telefono='${body.telefono}', 
-        direccion='${body.direccion}', correo='${body.correo}', edad=${body.edad}
-	    WHERE documento = ${documento_cliente};`;
+        correo='${body.correo}' WHERE id = ${id_proveedor};`;
 
     let respuesta = await _servicio.ejecutarSql(sql);
     return respuesta;
 };
 
 module.exports = {
-    validarCliente,
-    guardarCliente,
-    consultarClientes,
-    consultarCliente,
-    eliminarCliente,
+    validarProveedor,
+    guardarProveedor,
+    consultarProveedores,
+    consultarProveedor,
+    eliminarProveedor,
 };
